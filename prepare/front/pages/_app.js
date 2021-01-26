@@ -6,20 +6,18 @@ import withReduxSaga from 'next-redux-saga';
 
 import wrapper from '../store/configureStore';
 
-const NodeBird = ({ Component }) => {
-    return (
-        <>
-            <Head>
-                <meta charSet="utf-8" />
-                <title>Nodebird</title>
-            </Head>
-            <Component />
-        </>
-    );
-};
+const NodeBird = ({ Component }) => (
+  <>
+    <Head>
+      <meta charSet="utf-8" />
+      <title>Nodebird</title>
+    </Head>
+    <Component />
+  </>
+);
 
 NodeBird.propTypes = {
-    Component: PropTypes.elementType.isRequired,
+  Component: PropTypes.elementType.isRequired,
 };
 
 export default wrapper.withRedux(withReduxSaga(NodeBird));
