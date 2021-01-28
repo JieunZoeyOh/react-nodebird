@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Form, Input, Button } from 'antd';
 import Link from 'next/link';
 import styled from 'styled-components';
@@ -16,16 +16,21 @@ const FormWrapper = styled(Form)`
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { logInLoading } = useSelector((state) => state.user);
+  const { logInLoading, logInError } = useSelector((state) => state.user);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
-
   // 컴포넌트에 props로 넘겨주는 함수는 꼭 useCallback 사용하기
   // antd에서 onFinish는 자동으로 e.preventDefault()가 적용 되어있다.
   const onsubmitForm = useCallback(() => {
     console.log(email, password);
     dispatch(loginRequestAction({ email, password }));
   }, [email, password]);
+
+  useEffect(() => {
+    if (logInError) {
+      alert(logInError);
+    }
+  }, [logInError]);
 
   return (
     <FormWrapper onFinish={onsubmitForm}>

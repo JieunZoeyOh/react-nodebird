@@ -1,4 +1,4 @@
-import { all, fork, takeLatest, put, delay } from 'redux-saga/effects';
+import { all, fork, takeLatest, put, delay, call } from 'redux-saga/effects';
 import axios from 'axios';
 import {
   LOG_IN_REQUEST, LOG_IN_SUCCESS, LOG_IN_FAILURE,
@@ -9,7 +9,7 @@ import {
 } from '../reducers/user';
 
 function followAPI() {
-  return axios.post('/api/follow');
+  return axios.post('/user/follow');
 }
 
 function* follow(action) {
@@ -30,7 +30,7 @@ function* follow(action) {
 }
 
 function unfollowAPI() {
-  return axios.post('/api/unfollow');
+  return axios.post('/user/unfollow');
 }
 
 function* unfollow(action) {
@@ -51,7 +51,7 @@ function* unfollow(action) {
 }
 
 function logInAPI(data) {
-  return axios.post('/api/login', data);
+  return axios.post('/user/login', data);
 }
 
 // 성공 결과는 result.data,
@@ -60,11 +60,10 @@ function logInAPI(data) {
 
 function* logIn(action) {
   try {
-    // const result = yield call(logInAPI, action.data);
-    yield delay(1000);
+    const result = yield call(logInAPI, action.data);
     yield put({
       type: LOG_IN_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (err) {
     yield put({
@@ -75,33 +74,31 @@ function* logIn(action) {
 }
 
 function logOutAPI(data) {
-  return axios.post('/api/logout', data);
+  return axios.post('/user/logout', data);
 }
 
 function* logOut(action) {
   try {
-    // const result = yield call(logOutAPI, action.data);
-    yield delay(1000);
+    yield call(logOutAPI, action.data);
     yield put({
       type: LOG_OUT_SUCCESS,
-      // data: action.data
     });
   } catch (err) {
     yield put({
       type: LOG_OUT_FAILURE,
       error: err.response.data,
-    })
+    });
   }
 }
 
 function signUpAPI(data) {
-  return axios.post('/api/signUp', data);
+  return axios.post('/user', data);
 }
 
 function* signUp(action) {
   try {
-    // const result = yield call(signUpAPI, action.data);
-    yield delay(1000);
+    const result = yield call(signUpAPI, action.data);
+    console.log(result);
     yield put({
       type: SIGN_UP_SUCCESS,
       // data: action.data
