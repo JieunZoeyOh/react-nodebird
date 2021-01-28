@@ -65,26 +65,6 @@ export const addComment = (data) => ({
   data,
 });
 
-const dummyPost = (data) => ({
-  id: data.id,
-  content: data.content,
-  User: {
-    id: 1,
-    nickname: '오징',
-  },
-  Images: [],
-  Comments: [],
-});
-
-const dummyComment = (data) => ({
-  id: shortId.generate(),
-  content: data,
-  User: {
-    id: 1,
-    nickname: '오징',
-  },
-});
-
 // reducer: 이전 상태를 액션을 통해 다음 상태로 만들어내는 함수 (불변성은 지키면서)
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
@@ -111,7 +91,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case ADD_POST_SUCCESS:
       draft.addPostLoading = false;
       draft.addPostDone = true;
-      draft.mainPosts = [dummyPost(action.data), ...state.mainPosts];
+      draft.mainPosts.unshift(action.data);
       break;
     case ADD_POST_FAILURE:
       draft.addPostLoading = false;
@@ -137,8 +117,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.addCommentError = null;
       break;
     case ADD_COMMENT_SUCCESS: {
-      const post = draft.mainPosts.find((v) => v.id === action.data.postId);
-      post.Comments.unshift(dummyComment(action.data.content));
+      const post = draft.mainPosts.find((v) => v.id === action.data.PostId);
+      post.Comments.unshift(action.data);
       draft.addCommentLoading = false;
       draft.addCommentDone = true;
       break;
