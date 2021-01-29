@@ -6,11 +6,32 @@ import {
   SIGN_UP_REQUEST, SIGN_UP_SUCCESS, SIGN_UP_FAILURE,
   FOLLOW_REQUEST, FOLLOW_SUCCESS, FOLLOW_FAILURE,
   UNFOLLOW_REQUEST, UNFOLLOW_FAILURE, UNFOLLOW_SUCCESS,
+  LOAD_MY_INFO_REQUEST, LOAD_MY_INFO_SUCCESS, LOAD_MY_INFO_FAILURE,
 } from '../reducers/user';
 
-function followAPI() {
-  return axios.post('/user/follow');
+function loadMyInfoAPI() {
+  return axios.get('/user');
 }
+
+function* loadMyInfo(action) {
+  try {
+    const result = yield call(loadMyInfoAPI, action.data);
+    yield put({
+      type: LOAD_MY_INFO_SUCCESS,
+      data: result.data,
+    });
+  } catch (err) {
+    console.error(err);
+    yield put({
+      type: LOAD_MY_INFO_FAILURE,
+      error: err.response.data,
+    });
+  }
+}
+
+// function followAPI() {
+//   return axios.post('/user/follow');
+// }
 
 function* follow(action) {
   try {
@@ -29,9 +50,9 @@ function* follow(action) {
   }
 }
 
-function unfollowAPI() {
-  return axios.post('/user/unfollow');
-}
+// function unfollowAPI() {
+//   return axios.post('/user/unfollow');
+// }
 
 function* unfollow(action) {
   try {
@@ -121,6 +142,10 @@ function* signUp(action) {
 
 // 쓰로틀링: 마지막 함수가 호출된 후 일정 시간이 지나기 전에 다시 호출되지 않도록 하는 것
 // 디바운싱: 연이어 호출되는 함수들 중 마지막 함수(또는 제일 처음)만 호출하도록 하는 것
+function* watchLoadMyInfo() {
+  yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo);
+}
+
 function* watchFollow() {
   yield takeLatest(FOLLOW_REQUEST, follow);
 }
@@ -146,6 +171,7 @@ function* watchSignUp() {
 // call : 함수 실행 (동기)
 export default function* userSaga() {
   yield all([
+    fork(watchLoadMyInfo),
     fork(watchFollow),
     fork(watchUnfollow),
     fork(watchLogIn),
