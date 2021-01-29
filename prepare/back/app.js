@@ -24,7 +24,7 @@ passportConfig();
 
 app.use(cors({
   origin: true,
-  credentials: false,
+  credentials: true, // 쿠키 전달
 }));
 // 넘어온 data를 request body에 넣어주는 역할 router보다 위에 위치해야 함
 app.use(express.json());
