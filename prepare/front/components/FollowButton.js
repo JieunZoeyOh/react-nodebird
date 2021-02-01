@@ -17,12 +17,14 @@ const FollowButton = ({ post }) => {
     } else {
       dispatch({
         type: FOLLOW_REQUEST,
-        data: {
-          id: post.User.id,
-        },
+        data: post.User.id,
       });
     }
   }, [isFollowing]);
+
+  if (post.User.id === me.id) {
+    return null;
+  }
 
   return (
     <Button
