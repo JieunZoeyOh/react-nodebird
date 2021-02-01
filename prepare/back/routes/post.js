@@ -19,12 +19,16 @@ router.post('/', isLoggedIn, async (req, res, next) => { // POST /post
       }, {
         model: Comment,
         include: [{
-          model: User,
+          model: User, // 댓글 작성자
           attributes: ['id', 'nickname'],
         }],
       }, {
-        model: User,
+        model: User, // 게시글 작성자
         attributes: ['id', 'nickname'],
+      }, {
+        model: User, // 좋아요 누른 사람
+        as: 'Likers',
+        attributes: ['id'],
       }]
     })
     res.status(201).json(fullPost); // 프론트(saga/post)에 return
@@ -75,7 +79,7 @@ router.patch('/:postId/like', async (req, res, next) => {
   }
 });
 
-router.delete('/:postId/like', (req, res, next) => {
+router.delete('/:postId/like', async (req, res, next) => {
   try {
     const post = await Post.findOne({ where: { id: req.params.postId } });
     if (!post) {
