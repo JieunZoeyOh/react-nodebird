@@ -4,6 +4,7 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 
 const dotenv = require('dotenv');
+const path = require('path');
 const passport = require('passport');
 const postRouter = require('./routes/post');
 const postsRouter = require('./routes/posts');
@@ -27,6 +28,8 @@ app.use(cors({
   origin: true,
   credentials: true, // 쿠키 전달
 }));
+// path.join : 운영체제에 맞게 주소 경로 설정(/ 또는 \)
+app.use('/', express.static(path.join(__dirname, 'uploads')));
 // 넘어온 data를 request body에 넣어주는 역할 router보다 위에 위치해야 함
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
