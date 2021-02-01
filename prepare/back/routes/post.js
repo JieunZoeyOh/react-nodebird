@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const { Post, Comment, Image, User } = require('../models');
+const { Post, Comment, Image, User, Hashtag } = require('../models');
 const { isLoggedIn } = require('./middlewares');
 
 const router = express.Router();
@@ -31,11 +31,20 @@ const upload = multer({
 
 router.post('/', isLoggedIn, upload.none(), async (req, res, next) => { // POST /post
   try {
+    const hashtags = req.body.content.match(/#[^\s#]+/g);
     // create 하면 생성된 객체가 return 됨
     const post = await Post.create({
       content: req.body.content,
       UserId: req.user.id, // req.user는 라우트에 접근하기 전 passport deserializeUser에서 만들어짐 
     });
+
+    if (hashtags) {
+      const result = await Promise.all(hashtags.map((tag) => Hashtag.findOrCreate({
+        where: { name: tag.slice(1).toLowerCase() },
+      }))); // [[노드, true], [리액트, true]] : 두번째 index = findOrCreate 결과
+      await post.addHashtags(result.map((v) => v[0]));
+    }
+
     if (req.body.image) {
       if (Array.isArray(req.body.image)) { // 이미지를 여러 개 올리면 image: [배열로 옴]
         const images = await Promise.all(req.body.image.map((image) => Image.create({ src: image })));
