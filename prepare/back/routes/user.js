@@ -8,7 +8,6 @@ const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 const router = express.Router();
 
 router.get('/', async (req, res, next) => { // GET /user
-  console.log(req.headers);
   try {
     if (req.user) { // 로그인 상태
       const fullUserWithoutPassword = await User.findOne({
@@ -33,6 +32,43 @@ router.get('/', async (req, res, next) => { // GET /user
       res.status(200).json(fullUserWithoutPassword);
     } else { // 로그아웃 상태
       res.status(200).json(null);
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+
+router.get('/:userId', async (req, res, next) => { // GET /user/1
+  try {
+    const fullUserWithoutPassword = await User.findOne({
+      where: { id: req.params.userId },
+      attributes: {
+        exclude: ['password']
+      },
+      // 다른 테이블 합칠 때
+      include: [{
+        model: Post, // hasMany이므로 model:Post가 복수형이 되어 me.Posts가 됩니다.
+        attributes: ['id'],
+      }, {
+        model: User,
+        as: 'Followings',
+        attributes: ['id'],
+      }, {
+        model: User,
+        as: 'Followers',
+        attributes: ['id'],
+      }]
+    })
+    if (fullUserWithoutPassword) {
+      const data = fullUserWithoutPassword.toJSON();
+      data.Posts = data.Posts.length; // 개인정보 침해 예방
+      data.Followers = data.Followers.length;
+      data.Followings = data.Followings.length;
+      res.status(200).json(data);
+    } else {
+      res.status(404).json('존재하지 않는 사용자입니다.');
     }
   } catch (error) {
     console.error(error);
